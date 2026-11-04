@@ -52,7 +52,23 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // Find the product by its ID
+        $product = Product::find($id);
+
+        // Check if the product exists
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy loại trái cây này'
+            ], 404); // 404 Not Found
+        }
+
+        // Return the specific product details
+        return response()->json([
+            'success' => true,
+            'message' => 'Lấy thông tin chi tiết trái cây thành công',
+            'data' => $product
+        ], 200);
     }
 
     /**
@@ -60,7 +76,32 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Find the product by its ID
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy loại trái cây này để cập nhật'
+            ], 404);
+        }
+
+        // Validate basic input data
+        $request->validate([
+            'name' => 'sometimes|required|string',
+            'price' => 'sometimes|required|integer',
+            'stock' => 'sometimes|required|numeric',
+        ]);
+
+        // Update the product data in the database
+        $product->update($request->all());
+
+        // Return the updated product data
+        return response()->json([
+            'success' => true,
+            'message' => 'Cập nhật thông tin trái cây thành công',
+            'data' => $product
+        ], 200);
     }
 
     /**
@@ -68,6 +109,23 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Find the product by its ID
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy loại trái cây này để xóa'
+            ], 404);
+        }
+
+        // Delete the product from the database
+        $product->delete();
+
+        // Return a success message
+        return response()->json([
+            'success' => true,
+            'message' => 'Xóa trái cây thành công'
+        ], 200);
     }
 }
