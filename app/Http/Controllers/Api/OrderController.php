@@ -10,29 +10,33 @@ use Carbon\Carbon;
 class OrderController extends Controller
 {
     /**
-     * Display a listing of today's orders and revenue summary.
+     * Display a listing of orders and revenue summary filtered by a specific date.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch orders created today, ordered by newest first
-        $todayOrders = Order::whereDate('created_at', Carbon::today())
+        // Get the 'date' query parameter from the URL, default to today if not provided
+        $targetDate = $request->query('date') ? Carbon::parse($request->query('date')) : Carbon::today();
+
+        // Fetch orders created on the selected date, ordered by newest first
+        $filteredOrders = Order::whereDate('created_at', $targetDate)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Calculate total cash and transfer revenue for today
-        $totalCash = $todayOrders->sum('cash_amount');
-        $totalTransfer = $todayOrders->sum('transfer_amount');
-        $totalRevenue = $todayOrders->sum('total_amount');
+        // Calculate total cash, bank transfer, and overall revenue for the selected date
+        $totalCash = $filteredOrders->sum('cash_amount');
+        $totalTransfer = $filteredOrders->sum('transfer_amount');
+        $totalRevenue = $filteredOrders->sum('total_amount');
 
         return response()->json([
             'success' => true,
-            'message' => 'Lấy thống kê doanh thu hôm nay thành công',
+            'message' => 'Lấy thống kê doanh thu thành công',
+            'date' => $targetDate->toDateString(),
             'summary' => [
                 'total_revenue' => $totalRevenue,
                 'total_cash' => $totalCash,
                 'total_transfer' => $totalTransfer,
             ],
-            'data' => $todayOrders
+            'data' => $filteredOrders
         ], 200);
     }
 
