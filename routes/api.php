@@ -16,9 +16,9 @@ Route::delete('products/{product}', [ProductController::class, 'destroy']);
 Route::post('orders', [OrderController::class, 'store']);
 Route::post('webhook/sepay', [WebhookController::class, 'handleSepayWebhook']);
 Route::get('check-payment', [WebhookController::class, 'checkPaymentStatus']);
+Route::get('orders', [OrderController::class, 'index']);
 
 // Protected routes (Requires Admin Token via Laravel Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('orders', [OrderController::class, 'index']); // Khóa API xem báo cáo doanh thu
     Route::post('logout', [AuthController::class, 'logout']);
 });
